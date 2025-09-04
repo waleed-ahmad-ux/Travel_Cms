@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import {
   Menu as MenuIcon,
-  Dashboard,
+  // Dashboard,
   PhotoLibrary,
   Place,
   People,
