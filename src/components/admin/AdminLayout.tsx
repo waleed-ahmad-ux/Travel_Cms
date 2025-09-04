@@ -48,7 +48,7 @@ const AdminLayout: React.FC = () => {
     { text: 'Photo Management', icon: <PhotoLibrary />, path: '/admin/photos' },
     { text: 'Destinations', icon: <Place />, path: '/admin/destinations' },
     { text: 'Hotel Management', icon: <Hotel />, path: '/admin/hotels' },
-    { text: 'Hotel Margins', icon: <TrendingUp />, path: '/admin/hotel-margins' },
+    { text: 'Hotel Rating and Margins', icon: <TrendingUp />, path: '/admin/hotel-margins' },
     { text: 'Flight Management', icon: <FlightTakeoff />, path: '/admin/flights' },
     { text: 'User Management', icon: <People />, path: '/admin/users' },
     { text: 'Flight Margins', icon: <FlightTakeoff />, path: '/admin/flight-margins' },

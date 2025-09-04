@@ -13,9 +13,12 @@ import { TrendingUp as MarginIcon } from '@mui/icons-material';
 
 const HotelManagement: React.FC = () => {
   const [starRating, setStarRating] = useState('');
+  const [margin, setMargin] = useState('');
 
   const handleApply = () => {
-    alert(`Applied:\nHotel Star Rating: ${starRating}`);
+    alert(`Applied:
+Hotel Star Rating: ${starRating}
+Hotel Margin: ${margin}`);
   };
 
   return (
@@ -30,7 +33,7 @@ const HotelManagement: React.FC = () => {
       <Box maxWidth={600} width="100%" textAlign="center">
         <Box display="flex" justifyContent="center" alignItems="center" gap={2} mb={3}>
           <MarginIcon sx={{ fontSize: 32, color: 'primary.main' }} />
-          <Typography variant="h4">Hotel Margin Management</Typography>
+          <Typography variant="h4">Hotel Rating And Margin</Typography>
         </Box>
 
         <Grid container spacing={3} justifyContent="center">
@@ -46,6 +49,23 @@ const HotelManagement: React.FC = () => {
                 <MenuItem value="5 Star">5 Star</MenuItem>
                 <MenuItem value="4 Star">4 Star</MenuItem>
                 <MenuItem value="3 Star">3 Star</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+
+          {/* Hotel Margin */}
+          <Grid item xs={12}>
+            <FormControl fullWidth>
+              <InputLabel>Hotel Margin</InputLabel>
+              <Select
+                value={margin}
+                onChange={(e) => setMargin(e.target.value)}
+                label="Hotel Margin"
+              >
+                <MenuItem value="10%">10%</MenuItem>
+                <MenuItem value="15%">15%</MenuItem>
+                <MenuItem value="20%">20%</MenuItem>
+                <MenuItem value="25%">25%</MenuItem>
               </Select>
             </FormControl>
           </Grid>
