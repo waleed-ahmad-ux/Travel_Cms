@@ -44,7 +44,7 @@ const AdminLayout: React.FC = () => {
   const location = useLocation();
 
   const menuItems = [
-    { text: 'Dashboard', icon: <Dashboard />, path: '/admin/dashboard' },
+    // { text: ' Welcome to Airworld Tours CMS', icon: <Dashboard />, path: '/admin/dashboard' },
     { text: 'Photo Management', icon: <PhotoLibrary />, path: '/admin/photos' },
     { text: 'Destinations', icon: <Place />, path: '/admin/destinations' },
     { text: 'Hotel Management', icon: <Hotel />, path: '/admin/hotels' },
