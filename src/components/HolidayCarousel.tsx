@@ -35,7 +35,7 @@ const CarouselTrack = styled(Box)(() => ({
   transformStyle: 'preserve-3d',
 }));
 
-const CarouselCard = styled(Card)(({ theme }) => ({
+const CarouselCard = styled(Card)(({  }) => ({
   minWidth: 350,
   maxWidth: 400,
   height: 480,
