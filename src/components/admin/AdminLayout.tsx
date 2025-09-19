@@ -29,7 +29,8 @@ import {
   AccountCircle,
   Notifications,
   Hotel,
-  TrendingUp
+  TrendingUp,
+  LocalOffer
 } from '@mui/icons-material';
 import { useAdmin } from '../../contexts/AdminContext';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';

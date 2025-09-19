@@ -38,3 +38,27 @@ export interface FlightMargin {
   updatedAt: string;
   updatedBy: string;
 }
+
+export interface PackageMargin {
+  id: string;
+  region: string;
+  destination?: string;
+  marginPercentage: number;
+  fixedMargin?: number;
+  seasonalMultiplier?: number;
+  rating?: '5 Star' | '4 Star' | '3 Star';
+  updatedAt: string;
+  updatedBy: string;
+}
+
+export interface HotelMargin {
+  id: string;
+  region: string;
+  destination?: string;
+  marginPercentage: number;
+  fixedMargin?: number;
+  seasonalMultiplier?: number;
+  rating?: '5 Star' | '4 Star' | '3 Star';
+  updatedAt: string;
+  updatedBy: string;
+}

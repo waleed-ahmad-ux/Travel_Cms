@@ -31,7 +31,10 @@ import {
   Grid,
   Avatar,
   Switch,
-  FormControlLabel
+  FormControlLabel,
+  Tabs,
+  Tab,
+  InputAdornment
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -39,10 +42,23 @@ import {
   Delete as DeleteIcon,
   Hotel as HotelIcon,
   Visibility,
-  VisibilityOff
+  VisibilityOff,
+  Search
 } from '@mui/icons-material';
 import type { Hotel } from '../../types/index';
 import { hotelService } from '../../services/adminService';
+
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+const TabPanel: React.FC<TabPanelProps> = ({ children, value, index }) => (
+  <div role="tabpanel" hidden={value !== index}>
+    {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+  </div>
+);
 
 interface HotelFormData {
   id: string;
@@ -60,8 +76,14 @@ interface HotelFormData {
 
 const HotelManagement: React.FC = () => {
   const [hotelsList, setHotelsList] = useState<Hotel[]>([]);
+  const [filteredHotels, setFilteredHotels] = useState<Hotel[]>([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [editingHotel, setEditingHotel] = useState<Hotel | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [destinationFilter, setDestinationFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [ratingFilter, setRatingFilter] = useState('');
+  const [tabValue, setTabValue] = useState(0);
   const [formData, setFormData] = useState<HotelFormData>({
     id: '',
     name: '',
@@ -98,6 +120,49 @@ const HotelManagement: React.FC = () => {
 
     loadHotels();
   }, []);
+
+  useEffect(() => {
+    filterHotels();
+  }, [searchTerm, destinationFilter, statusFilter, ratingFilter, tabValue, hotelsList]);
+
+  const filterHotels = () => {
+    let filtered = [...hotelsList];
+
+    // Filter by tab
+    if (tabValue === 1) {
+      filtered = filtered.filter(hotel => hotel.isActive);
+    } else if (tabValue === 2) {
+      filtered = filtered.filter(hotel => !hotel.isActive);
+    }
+
+    // Filter by search term
+    if (searchTerm) {
+      filtered = filtered.filter(hotel =>
+        hotel.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        hotel.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        hotel.offers.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Filter by destination
+    if (destinationFilter) {
+      filtered = filtered.filter(hotel => hotel.destinationId === destinationFilter);
+    }
+
+    // Filter by status
+    if (statusFilter) {
+      const isActive = statusFilter === 'active';
+      filtered = filtered.filter(hotel => hotel.isActive === isActive);
+    }
+
+    // Filter by rating
+    if (ratingFilter) {
+      const minRating = parseInt(ratingFilter);
+      filtered = filtered.filter(hotel => hotel.rating >= minRating);
+    }
+
+    setFilteredHotels(filtered);
+  };
 
   const destinations = [
     { id: '1', name: 'Maldives' },
@@ -274,7 +339,7 @@ const HotelManagement: React.FC = () => {
                 Total Hotels
               </Typography>
               <Typography variant="h4">
-                {hotelsList.length}
+                {filteredHotels.length}
               </Typography>
             </CardContent>
           </Card>
@@ -286,7 +351,7 @@ const HotelManagement: React.FC = () => {
                 Active Destinations
               </Typography>
               <Typography variant="h4">
-                {new Set(hotelsList.map(h => h.destinationId)).size}
+                {new Set(filteredHotels.map(h => h.destinationId)).size}
               </Typography>
             </CardContent>
           </Card>
@@ -298,7 +363,7 @@ const HotelManagement: React.FC = () => {
                 Average Rating
               </Typography>
               <Typography variant="h4">
-                {(hotelsList.reduce((acc, hotel) => acc + hotel.rating, 0) / hotelsList.length).toFixed(1)}
+                {filteredHotels.length > 0 ? (filteredHotels.reduce((acc, hotel) => acc + hotel.rating, 0) / filteredHotels.length).toFixed(1) : '0.0'}
               </Typography>
             </CardContent>
           </Card>
@@ -310,16 +375,90 @@ const HotelManagement: React.FC = () => {
                 Total Value
               </Typography>
               <Typography variant="h4">
-                £{(hotelsList.reduce((acc, hotel) => acc + hotel.priceForTwo, 0) / 1000).toFixed(0)}k
+                £{filteredHotels.length > 0 ? (filteredHotels.reduce((acc, hotel) => acc + hotel.priceForTwo, 0) / 1000).toFixed(0) : '0'}k
               </Typography>
             </CardContent>
           </Card>
         </Grid>
       </Grid>
 
-      <TableContainer component={Paper}>
-        <Table>
-                      <TableHead>
+      {/* Search and Filters */}
+      <Box mb={3}>
+        <Box display="flex" gap={2} flexWrap="wrap" alignItems="center" mb={2}>
+          <TextField
+            placeholder="Search hotels..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search />
+                </InputAdornment>
+              ),
+            }}
+            sx={{ minWidth: 300 }}
+          />
+          
+          <FormControl sx={{ minWidth: 200 }}>
+            <InputLabel>Filter by Destination</InputLabel>
+            <Select
+              value={destinationFilter}
+              onChange={(e) => setDestinationFilter(e.target.value)}
+              label="Filter by Destination"
+            >
+              <MenuItem value="">All Destinations</MenuItem>
+              {destinations.map(destination => (
+                <MenuItem key={destination.id} value={destination.id}>
+                  {destination.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <FormControl sx={{ minWidth: 150 }}>
+            <InputLabel>Filter by Status</InputLabel>
+            <Select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              label="Filter by Status"
+            >
+              <MenuItem value="">All Status</MenuItem>
+              <MenuItem value="active">Active</MenuItem>
+              <MenuItem value="inactive">Inactive</MenuItem>
+            </Select>
+          </FormControl>
+
+          <FormControl sx={{ minWidth: 150 }}>
+            <InputLabel>Min Rating</InputLabel>
+            <Select
+              value={ratingFilter}
+              onChange={(e) => setRatingFilter(e.target.value)}
+              label="Min Rating"
+            >
+              <MenuItem value="">All Ratings</MenuItem>
+              <MenuItem value="1">1+ Star</MenuItem>
+              <MenuItem value="2">2+ Stars</MenuItem>
+              <MenuItem value="3">3+ Stars</MenuItem>
+              <MenuItem value="4">4+ Stars</MenuItem>
+              <MenuItem value="5">5 Stars</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+
+        {/* Tabs */}
+        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          <Tabs value={tabValue} onChange={(_, newValue) => setTabValue(newValue)}>
+            <Tab label={`All Hotels (${hotelsList.length})`} />
+            <Tab label={`Active (${hotelsList.filter(h => h.isActive).length})`} />
+            <Tab label={`Inactive (${hotelsList.filter(h => !h.isActive).length})`} />
+          </Tabs>
+        </Box>
+      </Box>
+
+      <TabPanel value={tabValue} index={0}>
+        <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
+          <Table sx={{ minWidth: 1000 }}>
+            <TableHead>
               <TableRow>
                 <TableCell>Hotel</TableCell>
                 <TableCell>Location</TableCell>
@@ -329,11 +468,11 @@ const HotelManagement: React.FC = () => {
                 <TableCell>Board</TableCell>
                 <TableCell>Offers</TableCell>
                 <TableCell>Status</TableCell>
-                <TableCell>Actions</TableCell>
+                <TableCell sx={{ position: 'sticky', right: 0, backgroundColor: 'background.paper', zIndex: 1 }}>Actions</TableCell>
               </TableRow>
             </TableHead>
-          <TableBody>
-            {hotelsList.map((hotel) => (
+            <TableBody>
+              {filteredHotels.map((hotel) => (
               <TableRow key={hotel.id}>
                 <TableCell>
                   <Box display="flex" alignItems="center" gap={2}>
@@ -383,7 +522,7 @@ const HotelManagement: React.FC = () => {
                     color={hotel.isActive ? 'success' : 'default'}
                   />
                 </TableCell>
-                <TableCell>
+                <TableCell sx={{ position: 'sticky', right: 0, backgroundColor: 'background.paper', zIndex: 1 }}>
                   <Box display="flex" gap={1}>
                     <IconButton
                       size="small"
@@ -409,10 +548,209 @@ const HotelManagement: React.FC = () => {
                   </Box>
                 </TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </TabPanel>
+
+      <TabPanel value={tabValue} index={1}>
+        <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
+          <Table sx={{ minWidth: 1000 }}>
+            <TableHead>
+              <TableRow>
+                <TableCell>Hotel</TableCell>
+                <TableCell>Location</TableCell>
+                <TableCell>Destination</TableCell>
+                <TableCell>Rating</TableCell>
+                <TableCell>Price (for 2)</TableCell>
+                <TableCell>Board</TableCell>
+                <TableCell>Offers</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell sx={{ position: 'sticky', right: 0, backgroundColor: 'background.paper', zIndex: 1 }}>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredHotels.map((hotel) => (
+                <TableRow key={hotel.id}>
+                  <TableCell>
+                    <Box display="flex" alignItems="center" gap={2}>
+                      <Avatar
+                        src={hotel.imageUrl}
+                        variant="rounded"
+                        sx={{ width: 50, height: 50 }}
+                      />
+                      <Box>
+                        <Typography variant="subtitle2" fontWeight="bold">
+                          {hotel.name}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          ID: {hotel.id}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </TableCell>
+                  <TableCell>{hotel.location}</TableCell>
+                  <TableCell>
+                    <Chip 
+                      label={getDestinationName(hotel.destinationId)}
+                      size="small"
+                      color="primary"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Rating value={hotel.rating} readOnly size="small" />
+                  </TableCell>
+                  <TableCell>£{hotel.priceForTwo.toLocaleString()}</TableCell>
+                  <TableCell>
+                    <Chip 
+                      label={hotel.nightsAndBoard}
+                      size="small"
+                      variant="outlined"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2" color="success.main">
+                      {hotel.offers}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Chip 
+                      label={hotel.isActive ? 'Active' : 'Inactive'}
+                      size="small"
+                      color={hotel.isActive ? 'success' : 'default'}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Box display="flex" gap={1}>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleToggleVisibility(hotel)}
+                        color={hotel.isActive ? 'success' : 'default'}
+                      >
+                        {hotel.isActive ? <Visibility /> : <VisibilityOff />}
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleOpenDialog(hotel)}
+                        color="primary"
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDelete(hotel.id)}
+                        color="error"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </TabPanel>
+
+      <TabPanel value={tabValue} index={2}>
+        <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
+          <Table sx={{ minWidth: 1000 }}>
+            <TableHead>
+              <TableRow>
+                <TableCell>Hotel</TableCell>
+                <TableCell>Location</TableCell>
+                <TableCell>Destination</TableCell>
+                <TableCell>Rating</TableCell>
+                <TableCell>Price (for 2)</TableCell>
+                <TableCell>Board</TableCell>
+                <TableCell>Offers</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell sx={{ position: 'sticky', right: 0, backgroundColor: 'background.paper', zIndex: 1 }}>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredHotels.map((hotel) => (
+                <TableRow key={hotel.id}>
+                  <TableCell>
+                    <Box display="flex" alignItems="center" gap={2}>
+                      <Avatar
+                        src={hotel.imageUrl}
+                        variant="rounded"
+                        sx={{ width: 50, height: 50 }}
+                      />
+                      <Box>
+                        <Typography variant="subtitle2" fontWeight="bold">
+                          {hotel.name}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          ID: {hotel.id}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </TableCell>
+                  <TableCell>{hotel.location}</TableCell>
+                  <TableCell>
+                    <Chip 
+                      label={getDestinationName(hotel.destinationId)}
+                      size="small"
+                      color="primary"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Rating value={hotel.rating} readOnly size="small" />
+                  </TableCell>
+                  <TableCell>£{hotel.priceForTwo.toLocaleString()}</TableCell>
+                  <TableCell>
+                    <Chip 
+                      label={hotel.nightsAndBoard}
+                      size="small"
+                      variant="outlined"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Typography variant="body2" color="success.main">
+                      {hotel.offers}
+                    </Typography>
+                  </TableCell>
+                  <TableCell>
+                    <Chip 
+                      label={hotel.isActive ? 'Active' : 'Inactive'}
+                      size="small"
+                      color={hotel.isActive ? 'success' : 'default'}
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <Box display="flex" gap={1}>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleToggleVisibility(hotel)}
+                        color={hotel.isActive ? 'success' : 'default'}
+                      >
+                        {hotel.isActive ? <Visibility /> : <VisibilityOff />}
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleOpenDialog(hotel)}
+                        color="primary"
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDelete(hotel.id)}
+                        color="error"
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </TabPanel>
 
       {/* Add/Edit Hotel Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>

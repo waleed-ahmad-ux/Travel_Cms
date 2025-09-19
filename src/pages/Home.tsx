@@ -320,7 +320,7 @@ export const Home = () => {
         maxWidth={false}
         sx={{
           py: 8,
-         // bgcolor: 'rgb(212,175,55)', // Gold-like background
+         
           bgcolor:'rgb(0, 29, 61)',
           borderRadius: 0, // Remove the border to have no curves
           width: '100vw',
@@ -336,7 +336,7 @@ export const Home = () => {
       mb:4,
       fontSize:'2.25rem',
       textTransform: 'uppercase',
-      color: 'rgb(255, 183, 3)',
+      color: 'rgb(255, 255, 255)',
       letterSpacing: 1,
       position: 'relative',
       display: 'block'

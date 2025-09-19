@@ -52,11 +52,18 @@ const PhotoManagement: React.FC = () => {
   const [uploading, setUploading] = useState(false);
   const [previewSize, setPreviewSize] = useState<'small' | 'medium' | 'large'>('medium');
 
-  const categories = ['destination', 'hotel', 'activity', 'general'];
+  const categories = ['destination', 'general'];
 
   useEffect(() => {
     loadPhotos();
   }, [categoryFilter, destinationFilter]);
+
+  // Clear destination when switching to general category during upload
+  useEffect(() => {
+    if (uploadCategory === 'general') {
+      setUploadDestination('');
+    }
+  }, [uploadCategory]);
 
   const loadPhotos = async () => {
     try {
@@ -383,23 +390,25 @@ const PhotoManagement: React.FC = () => {
               placeholder="beach, sunset, tropical"
             />
 
-            <FormControl fullWidth margin="normal">
-              <InputLabel>Destination</InputLabel>
-              <Select
-                value={uploadDestination}
-                onChange={(e) => setUploadDestination(e.target.value)}
-                label="Destination (optional)"
-              >
-                <MenuItem value="">
-                  <em>No specific destination</em>
-                </MenuItem>
-                {destinations.map(destination => (
-                  <MenuItem key={destination.id} value={destination.id}>
-                    {destination.name} ({destination.region})
+            {uploadCategory !== 'general' && (
+              <FormControl fullWidth margin="normal">
+                <InputLabel>Destination</InputLabel>
+                <Select
+                  value={uploadDestination}
+                  onChange={(e) => setUploadDestination(e.target.value)}
+                  label="Destination (optional)"
+                >
+                  <MenuItem value="">
+                    <em>No specific destination</em>
                   </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+                  {destinations.map(destination => (
+                    <MenuItem key={destination.id} value={destination.id}>
+                      {destination.name} ({destination.region})
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
           </Box>
 
           <Box
@@ -472,26 +481,28 @@ const PhotoManagement: React.FC = () => {
                 </Select>
               </FormControl>
 
-              <FormControl fullWidth margin="normal">
-                <InputLabel>Destination</InputLabel>
-                <Select
-                  value={selectedPhoto.destinationId || ''}
-                  onChange={(e) => setSelectedPhoto({
-                    ...selectedPhoto,
-                    destinationId: e.target.value || undefined
-                  })}
-                  label="Destination"
-                >
-                  <MenuItem value="">
-                    <em>No specific destination</em>
-                  </MenuItem>
-                  {destinations.map(destination => (
-                    <MenuItem key={destination.id} value={destination.id}>
-                      {destination.name} ({destination.region})
+              {selectedPhoto.category !== 'general' && (
+                <FormControl fullWidth margin="normal">
+                  <InputLabel>Destination</InputLabel>
+                  <Select
+                    value={selectedPhoto.destinationId || ''}
+                    onChange={(e) => setSelectedPhoto({
+                      ...selectedPhoto,
+                      destinationId: e.target.value || undefined
+                    })}
+                    label="Destination"
+                  >
+                    <MenuItem value="">
+                      <em>No specific destination</em>
                     </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                    {destinations.map(destination => (
+                      <MenuItem key={destination.id} value={destination.id}>
+                        {destination.name} ({destination.region})
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              )}
             </>
           )}
         </DialogContent>

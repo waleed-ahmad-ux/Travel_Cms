@@ -374,12 +374,33 @@ const DestinationManagement: React.FC = () => {
               helperText="This is the detailed about section that will be displayed on the destination page"
             />
 
-            <TextField
-              fullWidth
-              label="Image URL"
-              value={formData.imageUrl || ''}
-              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-            />
+            {editingDestination ? (
+              <TextField
+                fullWidth
+                label="Image URL"
+                type="url"
+                value={formData.imageUrl || ''}
+                InputProps={{ readOnly: true }}
+                helperText="View-only while editing."
+              />
+            ) : (
+              <TextField
+                fullWidth
+                label="Image URL"
+                type="url"
+                placeholder="https://example.com/image.jpg"
+                value={formData.imageUrl || ''}
+                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                helperText="Paste a direct image link (JPEG/PNG/WebP)."
+              />
+            )}
+
+            {!!formData.imageUrl && (
+              <Box display="flex" alignItems="center" gap={2} mt={1}>
+                <Avatar src={formData.imageUrl} alt="Preview" sx={{ width: 56, height: 56 }} />
+                <Typography variant="body2" color="textSecondary">Preview</Typography>
+              </Box>
+            )}
 
             <FormControl fullWidth>
               <InputLabel>Region</InputLabel>

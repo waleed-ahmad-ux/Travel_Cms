@@ -1,4 +1,4 @@
-import type { Photo, User, FlightMargin } from '../types/admin';
+import type { Photo, User, FlightMargin, PackageMargin, HotelMargin } from '../types/admin';
 import type { Hotel } from '../types/index';
 import { hotels } from './hotelService';
 import { v4 as uuidv4 } from 'uuid';
@@ -27,26 +27,67 @@ let mockUsers: User[] = [
 let mockFlightMargins: FlightMargin[] = [
   {
     id: '1',
-    region: 'Asia',
+    region: 'All',
     marginPercentage: 15,
+    updatedAt: new Date().toISOString(),
+    updatedBy: 'admin'
+  }
+];
+
+let mockPackageMargins: PackageMargin[] = [
+  {
+    id: '1',
+    region: 'All',
+    marginPercentage: 12,
+    rating: '5 Star',
     updatedAt: new Date().toISOString(),
     updatedBy: 'admin'
   },
   {
     id: '2',
-    region: 'Europe',
-    marginPercentage: 12,
+    region: 'All',
+    marginPercentage: 10,
+    rating: '4 Star',
     updatedAt: new Date().toISOString(),
     updatedBy: 'admin'
   },
   {
     id: '3',
-    region: 'Caribbean',
-    marginPercentage: 18,
+    region: 'All',
+    marginPercentage: 8,
+    rating: '3 Star',
     updatedAt: new Date().toISOString(),
     updatedBy: 'admin'
   }
 ];
+
+let mockHotelMargins: HotelMargin[] = [
+  {
+    id: '1',
+    region: 'All',
+    marginPercentage: 10,
+    rating: '5 Star',
+    updatedAt: new Date().toISOString(),
+    updatedBy: 'admin'
+  },
+  {
+    id: '2',
+    region: 'All',
+    marginPercentage: 8,
+    rating: '4 Star',
+    updatedAt: new Date().toISOString(),
+    updatedBy: 'admin'
+  },
+  {
+    id: '3',
+    region: 'All',
+    marginPercentage: 6,
+    rating: '3 Star',
+    updatedAt: new Date().toISOString(),
+    updatedBy: 'admin'
+  }
+];
+
 
 // Photo Management
 export const photoService = {
@@ -174,6 +215,80 @@ export const flightMarginService = {
     mockFlightMargins = mockFlightMargins.filter(margin => margin.id !== marginId);
   }
 };
+
+
+// Package Margin Management
+export const packageMarginService = {
+  async getPackageMargins(): Promise<PackageMargin[]> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return [...mockPackageMargins];
+  },
+
+  async createPackageMargin(marginData: Omit<PackageMargin, 'id' | 'updatedAt'>): Promise<PackageMargin> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const margin: PackageMargin = {
+      ...marginData,
+      id: uuidv4(),
+      updatedAt: new Date().toISOString()
+    };
+    mockPackageMargins.push(margin);
+    return margin;
+  },
+
+  async updatePackageMargin(marginId: string, updates: Partial<PackageMargin>): Promise<PackageMargin> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const index = mockPackageMargins.findIndex(margin => margin.id === marginId);
+    if (index === -1) throw new Error('Package margin not found');
+    mockPackageMargins[index] = {
+      ...mockPackageMargins[index],
+      ...updates,
+      updatedAt: new Date().toISOString()
+    };
+    return mockPackageMargins[index];
+  },
+
+  async deletePackageMargin(marginId: string): Promise<void> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    mockPackageMargins = mockPackageMargins.filter(margin => margin.id !== marginId);
+  }
+};
+
+// Hotel Margin Management (global)
+export const hotelMarginService = {
+  async getHotelMargins(): Promise<HotelMargin[]> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return [...mockHotelMargins];
+  },
+
+  async createHotelMargin(marginData: Omit<HotelMargin, 'id' | 'updatedAt'>): Promise<HotelMargin> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const margin: HotelMargin = {
+      ...marginData,
+      id: uuidv4(),
+      updatedAt: new Date().toISOString()
+    };
+    mockHotelMargins.push(margin);
+    return margin;
+  },
+
+  async updateHotelMargin(marginId: string, updates: Partial<HotelMargin>): Promise<HotelMargin> {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const index = mockHotelMargins.findIndex(margin => margin.id === marginId);
+    if (index === -1) throw new Error('Hotel margin not found');
+    mockHotelMargins[index] = {
+      ...mockHotelMargins[index],
+      ...updates,
+      updatedAt: new Date().toISOString()
+    };
+    return mockHotelMargins[index];
+  },
+
+  async deleteHotelMargin(marginId: string): Promise<void> {
+    await new Promise(resolve => setTimeout(resolve, 300));
+    mockHotelMargins = mockHotelMargins.filter(margin => margin.id !== marginId);
+  }
+};
+
 
 // Hotel Management
 export const hotelService = {

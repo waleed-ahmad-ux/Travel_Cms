@@ -95,6 +95,7 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+                {/* package-margins route removed */}
                 <Route path="settings" element={<div>Settings (Coming Soon)</div>} />
               </Route>
 
